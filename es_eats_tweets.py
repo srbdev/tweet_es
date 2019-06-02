@@ -51,9 +51,9 @@ while True:
         print(f"{_ts()} id={id} {res}")
 
         if res == 'created':
-            i += 1
+            page += 1
             time.sleep(fetch_intervals)
         elif res == 'updated':
             print(f"{_ts()} reset")
-            i = 0
+            page = 0
             time.sleep(reset_pause)
