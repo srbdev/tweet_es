@@ -1,17 +1,13 @@
 import argparse
 import time
 import tweepy
-
+import json
 from datetime import datetime
-from elasticsearch import Elasticsearch
 
 import keys
 
 
-es = Elasticsearch()
-
-
-parser = argparse.ArgumentParser(description='Elasticsearch eats tweets for breakfast!')
+parser = argparse.ArgumentParser(description='collects tweets for the farm!')
 parser.add_argument('--handle', help='Twitter handle', required=True)
 
 args = parser.parse_args()
@@ -39,15 +35,12 @@ while True:
     tweets = api.user_timeline(args.handle, page=page)
 
     for tweet in tweets:
-        json = tweet._json
+        id = tweet._json["id"]
 
-        id = json.pop('id', -1)
-        json['created_at'] = datetime.strptime(json['created_at'], '%a %b %d %H:%M:%S +0000 %Y').isoformat()
-        json['user']['created_at'] = datetime.strptime(json['user']['created_at'], '%a %b %d %H:%M:%S +0000 %Y').isoformat()
-        del json['user']['id']
+        with open(f"{id}.json", 'w', encoding="utf-8") as file:
+            json.dump(tweet._json, file, ensure_ascii=False, indent=4)
 
-        res = es.index(index=f"tweets-{args.handle.lower()}", doc_type="tweet", id=id, body=json)
-        res = res['result']
+        res = "created"
         print(f"{_ts()} id={id} {res}")
 
         if res == 'created':
