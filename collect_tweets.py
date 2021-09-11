@@ -9,7 +9,7 @@ import keys
 import config
 
 
-parser = argparse.ArgumentParser(description="collects tweets for the farm!")
+parser = argparse.ArgumentParser(description="Collects tweets for the farm!")
 parser.add_argument("--handle", help="Twitter handle", required=True)
 
 args = parser.parse_args()
