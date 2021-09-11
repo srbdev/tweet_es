@@ -7,14 +7,14 @@ from datetime import datetime
 import keys
 
 
-parser = argparse.ArgumentParser(description='collects tweets for the farm!')
-parser.add_argument('--handle', help='Twitter handle', required=True)
+parser = argparse.ArgumentParser(description="collects tweets for the farm!")
+parser.add_argument("--handle", help="Twitter handle", required=True)
 
 args = parser.parse_args()
 
 
-def _ts():
-    return datetime.now().strftime('%Y%m%d %H:%M:%S UTC')
+def generate_timestamp():
+    return datetime.now().strftime("%Y%m%d %H:%M:%S UTC")
 
 
 auth = tweepy.OAuthHandler(keys.CONSUMER_KEY, keys.CONSUMER_SECRET)
@@ -23,7 +23,7 @@ api = tweepy.API(auth)
 
 page = 0
 fetch_intervals = 90
-reset_pause = 60*60*1
+reset_pause = 60 * 60 * 1
 
 if fetch_intervals < 90:
     fetch_intervals = 90
@@ -37,16 +37,16 @@ while True:
     for tweet in tweets:
         id = tweet._json["id"]
 
-        with open(f"{id}.json", 'w', encoding="utf-8") as file:
+        with open(f"{id}.json", "w", encoding="utf-8") as file:
             json.dump(tweet._json, file, ensure_ascii=False, indent=4)
 
         res = "created"
-        print(f"{_ts()} id={id} {res}")
+        print(f"{generate_timestamp()} id={id} {res}")
 
-        if res == 'created':
+        if res == "created":
             page += 1
             time.sleep(fetch_intervals)
-        elif res == 'updated':
-            print(f"{_ts()} reset")
+        elif res == "updated":
+            print(f"{generate_timestamp()} reset")
             page = 0
             time.sleep(reset_pause)
