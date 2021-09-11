@@ -1,5 +1,7 @@
 keys.py
+config.py
 __pycache__
 env
 *.code-workspace
 .python-version
+.vscode
