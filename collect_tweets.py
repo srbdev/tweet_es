@@ -5,6 +5,8 @@ import json
 from datetime import datetime
 import os
 
+from tweepy.error import RateLimitError
+
 import keys
 import config
 
@@ -21,9 +23,8 @@ def generate_timestamp():
 
 print("+ Starting the harvest...")
 
-auth = tweepy.OAuthHandler(keys.CONSUMER_KEY, keys.CONSUMER_SECRET)
-auth.set_access_token(keys.ACCESS_TOKEN, keys.ACCESS_TOKEN_SECRET)
-api = tweepy.API(auth)
+auth = tweepy.AppAuthHandler(keys.CONSUMER_KEY, keys.CONSUMER_SECRET)
+api = tweepy.API(auth, wait_on_rate_limit=True)
 print("+ Authenticated with Twitter!")
 
 if not os.path.isdir(config.FARM_PATH):
@@ -48,9 +49,15 @@ else:
 
 fetch_intervals = 60 * 1.5
 reset_pause = 60 * 60 * 1
+rate_limit_pause = 60 * 60 * 1
 
 while True:
-    tweets = api.user_timeline(args.handle, page=page)
+    try:
+        tweets = api.user_timeline(args.handle, page=page)
+    except RateLimitError as e:
+        print(f"- Rate limit exceeded, pausing for {rate_limit_pause}s")
+        time.sleep(rate_limit_pause)
+        continue
 
     for tweet in tweets:
         id = tweet._json["id"]
